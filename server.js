@@ -5,7 +5,7 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 
-const { DATABASE_URL, PORT } = require('./config');
+const { DATABASE_URL, TEST_DATABASE_URL, PORT } = require('./config');
 const { BlogPost } = require('./models');
 
 const app = express();
@@ -42,6 +42,7 @@ app.post('/posts', (req, res) => {
     if (!(field in req.body)) {
       const message = `Missing \`${field}\` in request body`;
       console.error(message);
+		console.log(message);
       return res.status(400).send(message);
     }
   }
@@ -118,6 +119,7 @@ let server;
 // this function connects to our database, then starts the server
 function runServer(databaseUrl, port = PORT) {
   return new Promise((resolve, reject) => {
+	 console.log('++ Starting Server');
     mongoose.connect(databaseUrl, err => {
       if (err) {
         return reject(err);
@@ -139,7 +141,7 @@ function runServer(databaseUrl, port = PORT) {
 function closeServer() {
   return mongoose.disconnect().then(() => {
     return new Promise((resolve, reject) => {
-      console.log('Closing server');
+      console.log('++ Closing server');
       server.close(err => {
         if (err) {
           return reject(err);
@@ -153,7 +155,7 @@ function closeServer() {
 // if server.js is called directly (aka, with `node server.js`), this block
 // runs. but we also export the runServer command so other code (for instance, test code) can start the server as needed.
 if (require.main === module) {
-  runServer(DATABASE_URL).catch(err => console.error(err));
+  runServer(TEST_DATABASE_URL).catch(err => console.error(err));
 }
 
 module.exports = { runServer, app, closeServer };
