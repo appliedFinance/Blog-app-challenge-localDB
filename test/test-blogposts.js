@@ -17,17 +17,21 @@ const say = console.log;
 chai.use(chaiHttp);
 
 function clearDataBase() {
-	return new Promise(function(res,req) {
+	return new Promise(function(resolve,reject) {
 		say("***** Deleting DB data");
-		mongoose.connection.dropDatabase().then(res=>resolve(res)).catch(err=>reject(err));
+		mongoose.connection.dropDatabase().then(result=>resolve(result)).catch(err=>reject(err));
 	});
 }
 
 function createFakeBlogpost(n) {
+	return BlogPost.insertMany(FakeBlogpost(n));
+}
+
+function FakeBlogpost(n) {
 	// use mongoose to directly wite to db
 	say('***** creating random blog post');
 	const seedData = [];
-	for(let i=0; i<n; i++) {
+	for(let i=0; i<1; i++) {
 		seedData.push(
 				{ "author": {"firstName": faker.name.firstName(),
 								 "lastName":  faker.name.lastName()
@@ -40,7 +44,7 @@ function createFakeBlogpost(n) {
 	console.log("===============");
 	console.log(seedData);
 	console.log("===============");
-	return BlogPost.insertMany(seedData);
+	return seedData;
 }
 
 const NUM = 3; // number of seed posts to generate
@@ -48,11 +52,12 @@ const NUM = 3; // number of seed posts to generate
 describe('Test the BlogPost API', function() {
 
 	before(function()     { return runServer(TEST_DATABASE_URL); });
-	after(function()      { return clearDataBase();              });
-	beforeEach(function() { return createFakeBlogpost(NUM)		 });
-	afterEach(function()  { return closeServer();                });
+	after(function()      { return closeServer();              });
 
-/*
+	beforeEach(function() { return createFakeBlogpost(NUM);		 });
+	afterEach(function()  { return clearDataBase();                });
+
+	/*
 	// GET
 	describe('GET endpoint', function() {
 		it('Returns all existing BlogPosts', function() {
@@ -65,17 +70,14 @@ describe('Test the BlogPost API', function() {
 		});
 	});//GET 
 */
-
-
 /*
 	// POST
 	describe('POST endpoint', function() {
-		it('Adds a new Blog Post', function() {
-			const tempPost = createFakeBlogpost(1);			
 
+		it('Adds a new Blog Post', function() {
 			return chai.request(app)
 				.post('/posts')
-				.send(tempPost[0])
+				.send(FakeBlogpost(1)[0])
 				.then( function(res) {
 					// technical stuff
 					res.should.have.status(201);
@@ -94,9 +96,7 @@ describe('Test the BlogPost API', function() {
 		});
 	});//POST 
 */
-
-
-/*	
+/*
 	describe('PUT endpoint', function() {
 		it('Update fields you previously sent', function() {
 			const updatePost = {
@@ -110,22 +110,22 @@ describe('Test the BlogPost API', function() {
 				updatePost.id = post.id;
 
 				return chai.request(app)
-					.put(`/post/${post.id}`)
+					.put(`/posts/${post.id}`)
 					.send(updatePost);
 			})
 			.then( res=> { 
 				res.should.have.status(204);
-				return BlogPost.findById(updateData.id);
+				// test the body of the result, etc.
+				return BlogPost.findById(updatePost.id);
 			})
 			.then( post=> {
 				post.title.should.equal(updatePost.title);
-				post.content.should.equal(updateData.content);
+				post.content.should.equal(updatePost.content);
 			});
 
 		});
 	});//PUT
 */
-
 
 	describe('DELETE endpoint', function() {
 		it('Delete a post by its id', function() {
@@ -146,6 +146,8 @@ describe('Test the BlogPost API', function() {
 		});
 	
 	});
+
+
 
 });
 
