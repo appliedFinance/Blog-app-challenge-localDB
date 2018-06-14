@@ -18,7 +18,7 @@ chai.use(chaiHttp);
 
 function clearDataBase() {
 	return new Promise(function(resolve,reject) {
-		say("***** Deleting DB data");
+		say("* Deleting DB data");
 		mongoose.connection.dropDatabase().then(result=>resolve(result)).catch(err=>reject(err));
 	});
 }
@@ -29,7 +29,6 @@ function createFakeBlogpost(n) {
 
 function FakeBlogpost(n) {
 	// use mongoose to directly wite to db
-	say('***** creating random blog post');
 	const seedData = [];
 	for(let i=0; i<1; i++) {
 		seedData.push(
@@ -40,10 +39,6 @@ function FakeBlogpost(n) {
 				  "content": faker.lorem.text()
 				});
 	}
-	// write using Mongoose
-	console.log("===============");
-	console.log(seedData);
-	console.log("===============");
 	return seedData;
 }
 
@@ -57,7 +52,6 @@ describe('Test the BlogPost API', function() {
 	beforeEach(function() { return createFakeBlogpost(NUM);		 });
 	afterEach(function()  { return clearDataBase();                });
 
-	/*
 	// GET
 	describe('GET endpoint', function() {
 		it('Returns all existing BlogPosts', function() {
@@ -69,8 +63,8 @@ describe('Test the BlogPost API', function() {
 				});
 		});
 	});//GET 
-*/
-/*
+	
+	
 	// POST
 	describe('POST endpoint', function() {
 
@@ -81,22 +75,21 @@ describe('Test the BlogPost API', function() {
 				.then( function(res) {
 					// technical stuff
 					res.should.have.status(201);
-					//res.should.be.json;
+					res.should.be.json;
 
 					// test the data of the post
 					let newPost = res.body;
-					//newPost.should.be.a('object');
+					newPost.should.be.a('object');
 					newPost.should.include.keys('id','author','title','content','created');
 					//newPost.title.should.equal(tempPost.title);
-					//newPost.id.should.not.be.null;
+					newPost.id.should.not.be.null;
 					//newPost.author.should.equal(`${tempPost.author.firstName} ${tempPost.author.lastName}`);
 					//newPost.content.should.equal(tempPost.content);
 
 				});
 		});
 	});//POST 
-*/
-/*
+	
 	describe('PUT endpoint', function() {
 		it('Update fields you previously sent', function() {
 			const updatePost = {
@@ -125,7 +118,6 @@ describe('Test the BlogPost API', function() {
 
 		});
 	});//PUT
-*/
 
 	describe('DELETE endpoint', function() {
 		it('Delete a post by its id', function() {
